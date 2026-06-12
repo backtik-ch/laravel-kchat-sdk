@@ -1,69 +1,182 @@
-# :package_description
+# Laravel kChat SDK
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/:vendor_slug/:package_slug.svg?style=flat-square)](https://packagist.org/packages/:vendor_slug/:package_slug)
-[![GitHub Tests Action Status](https://github.com/spatie/package-skeleton-laravel/actions/workflows/run-tests.yml/badge.svg)](https://github.com/:vendor_slug/:package_slug/actions?query=workflow%3Arun-tests+branch%3Amain)
-[![GitHub Code Style Action Status](https://github.com/spatie/package-skeleton-laravel/actions/workflows/fix-php-code-style-issues.yml/badge.svg)](https://github.com/:vendor_slug/:package_slug/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
-[![Total Downloads](https://img.shields.io/packagist/dt/:vendor_slug/:package_slug.svg?style=flat-square)](https://packagist.org/packages/:vendor_slug/:package_slug)
-<!--delete-->
----
-This repo can be used to scaffold a Laravel package. Follow these steps to get started:
-
-1. Press the "Use this template" button at the top of this repo to create a new repo with the contents of this skeleton.
-2. Run "php ./configure.php" to run a script that will replace all placeholders throughout all the files.
-3. Have fun creating your package.
-4. If you need help creating a package, consider picking up our <a href="https://laravelpackage.training">Laravel Package Training</a> video course.
----
-<!--/delete-->
-This is where your description should go. Limit it to a paragraph or two. Consider adding a small example.
-
-## Support us
-
-[<img src="https://github-ads.s3.eu-central-1.amazonaws.com/:package_name.jpg?t=1" width="419px" />](https://spatie.be/github-ad-click/:package_name)
-
-We invest a lot of resources into creating [best in class open source packages](https://spatie.be/open-source). You can support us by [buying one of our paid products](https://spatie.be/open-source/support-us).
-
-We highly appreciate you sending us a postcard from your hometown, mentioning which of our package(s) you are using. You'll find our address on [our contact page](https://spatie.be/about-us). We publish all received postcards on [our virtual postcard wall](https://spatie.be/open-source/postcards).
+Laravel SDK for sending kChat messages with a bot token and reading kChat users.
 
 ## Installation
 
-You can install the package via composer:
-
 ```bash
-composer require :vendor_slug/:package_slug
+composer require backtik-ch/laravel-kchat-sdk
 ```
 
-You can publish and run the migrations with:
+Publish the config:
 
 ```bash
-php artisan vendor:publish --tag=":package_slug-migrations"
-php artisan migrate
+php artisan vendor:publish --tag="laravel-kchat-sdk-config"
 ```
 
-You can publish the config file with:
+## Configuration
 
-```bash
-php artisan vendor:publish --tag=":package_slug-config"
+```env
+KCHAT_BASE_URL=https://your-kchat-server.example.com
+KCHAT_TOKEN=your-bot-token
+KCHAT_BOT_USER_ID=your-bot-user-id
+KCHAT_TIMEOUT=10
+KCHAT_CACHE_ENABLED=true
+KCHAT_CACHE_TTL=3600
 ```
 
-This is the contents of the published config file:
+`KCHAT_TOKEN` is the bot token used as `Authorization: Bearer ...`. `KCHAT_BOT_USER_ID` is required for direct messages because the SDK creates or reuses the private channel between the bot and the target user.
+
+## Messages
+
+Send to a channel by channel id:
 
 ```php
-return [
-];
+use Backtik\KChat\Facades\KChat;
+
+$post = KChat::messages()
+    ->toChannel('channel_id')
+    ->message('Hello')
+    ->send();
 ```
 
-Optionally, you can publish the views using
-
-```bash
-php artisan vendor:publish --tag=":package_slug-views"
-```
-
-## Usage
+Markdown is just message content:
 
 ```php
-$:variable = new VendorName\Skeleton();
-echo $:variable->echoPhrase('Hello, VendorName!');
+KChat::messages()
+    ->toChannel('channel_id')
+    ->message('**Hello**')
+    ->send();
 ```
+
+Send a private message by user id:
+
+```php
+KChat::messages()
+    ->toUserId('user_id')
+    ->message('Hello')
+    ->send();
+```
+
+Send a private message by username:
+
+```php
+KChat::messages()
+    ->toUsername('simon')
+    ->message('**Hello**')
+    ->send();
+```
+
+Reply in a thread:
+
+```php
+KChat::messages()
+    ->toChannel('channel_id')
+    ->message('Reply')
+    ->inThread('root_post_id')
+    ->send();
+```
+
+Read, update and delete posts:
+
+```php
+$post = KChat::messages()->find('post_id');
+$thread = KChat::messages()->thread('post_id');
+$updated = KChat::messages()->update('post_id', 'Updated message');
+$deleted = KChat::messages()->delete('post_id');
+```
+
+Override the bot display name or avatar for one message:
+
+```php
+KChat::messages()
+    ->toChannel('channel_id')
+    ->message('Hello')
+    ->asBot(name: 'Deploy Bot', avatarUrl: 'https://example.com/avatar.png')
+    ->send();
+```
+
+Add color attachments:
+
+```php
+KChat::messages()
+    ->toChannel('channel_id')
+    ->message('Build failed')
+    ->attachment(
+        color: '#d92d20',
+        title: 'CI',
+        text: 'Tests failed',
+    )
+    ->send();
+```
+
+Attach a local file:
+
+```php
+KChat::messages()
+    ->toChannel('channel_id')
+    ->message('Report')
+    ->attachFile('/tmp/report.pdf')
+    ->send();
+```
+
+## Users
+
+```php
+$user = KChat::users()->find('user_id');
+$user = KChat::users()->findByUsername('simon');
+$user = KChat::users()->findByEmail('simon@example.com');
+$users = KChat::users()->list();
+```
+
+## Exceptions
+
+Public methods return typed DTOs or throw an exception. They do not return `false`.
+
+```php
+use Backtik\KChat\Exceptions\KChatNotFoundException;
+use Backtik\KChat\Exceptions\KChatRequestException;
+use Backtik\KChat\Facades\KChat;
+
+try {
+    $post = KChat::messages()
+        ->toUsername('simon')
+        ->message('**Hello**')
+        ->send();
+} catch (KChatNotFoundException $exception) {
+    // user or post not found
+} catch (KChatRequestException $exception) {
+    // request failed
+}
+```
+
+Available exceptions:
+
+- `KChatConfigurationException`
+- `KChatAuthenticationException`
+- `KChatAuthorizationException`
+- `KChatNotFoundException`
+- `KChatValidationException`
+- `KChatRequestException`
+
+Exceptions include the endpoint, HTTP status when available, and non-sensitive context. The SDK never includes the bot token in exception messages.
+
+## DTOs
+
+The SDK returns typed DTOs:
+
+- `KChatPost`
+- `KChatUser`
+- `KChatFileInfo`
+- `KChatChannel`
+
+Each DTO exposes common fields with methods such as `id()`, `message()`, `username()`, and keeps the full payload available through `raw()`.
+
+## Security
+
+Keep the bot token in config or `.env`; do not hard-code it in application code. The bot must have permission to post in target channels, create or access direct message channels, upload files, and optionally use message display overrides if your kChat server restricts that feature.
+
+`attachFile()` accepts local files only. It validates that the path exists and is readable before upload.
 
 ## Testing
 
@@ -71,23 +184,75 @@ echo $:variable->echoPhrase('Hello, VendorName!');
 composer test
 ```
 
-## Changelog
+## Testing in a Local Laravel App
 
-Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
+To test this package inside a Laravel application before publishing a release, use a local Composer path repository.
 
-## Contributing
+In the Laravel app `composer.json`, add:
 
-Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
+```json
+{
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../laravel-kchat-sdk",
+            "options": {
+                "symlink": true
+            }
+        }
+    ]
+}
+```
 
-## Security Vulnerabilities
+Adjust `url` to the relative path between the Laravel app and this package.
 
-Please review [our security policy](../../security/policy) on how to report security vulnerabilities.
+Then install the package in the Laravel app:
 
-## Credits
+```bash
+composer require backtik-ch/laravel-kchat-sdk:@dev
+```
 
-- [:author_name](https://github.com/:author_username)
-- [All Contributors](../../contributors)
+Publish the config in the Laravel app:
 
-## License
+```bash
+php artisan vendor:publish --tag="kchat-sdk-config"
+```
 
-The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
+Configure the Laravel app `.env` with the kChat server URL, bot token, and bot user id.
+
+You can test quickly with Tinker:
+
+```bash
+php artisan tinker
+```
+
+```php
+use Backtik\KChat\Facades\KChat;
+
+KChat::messages()
+    ->toChannel('channel_id')
+    ->message('Hello from the local SDK')
+    ->send();
+```
+
+Or with a temporary route:
+
+```php
+use Backtik\KChat\Facades\KChat;
+use Illuminate\Support\Facades\Route;
+
+Route::get('/test-kchat', function () {
+    $post = KChat::messages()
+        ->toChannel('channel_id')
+        ->message('Test from Laravel')
+        ->send();
+
+    return $post->raw();
+});
+```
+
+With `"symlink": true`, changes made in this package are immediately used by the Laravel app. If you add or move classes, run this in the Laravel app:
+
+```bash
+composer dump-autoload
+```
