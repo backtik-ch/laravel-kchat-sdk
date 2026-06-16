@@ -144,7 +144,9 @@ class KChatMessages
             return new KChatPost($this->client->post('posts', $payload));
         } catch (KChatRequestException $exception) {
             if ($this->botName !== null || $this->botAvatarUrl !== null) {
-                throw new KChatRequestException(
+                $class = get_class($exception);
+
+                throw new $class(
                     $exception->getMessage().' Bot display overrides may require server configuration or permissions.',
                     $exception->endpoint,
                     $exception->status,
@@ -159,15 +161,15 @@ class KChatMessages
 
     public function find(string $postId): KChatPost
     {
-        return new KChatPost($this->client->get("posts/{$postId}"));
+        return new KChatPost($this->client->get('posts/'.rawurlencode($postId)));
     }
 
     /**
-     * @return array<int, KChatPost>|KChatPost
+     * @return array<int, KChatPost>
      */
-    public function thread(string $postId): array|KChatPost
+    public function thread(string $postId): array
     {
-        $response = $this->client->get("posts/{$postId}/thread");
+        $response = $this->client->get('posts/'.rawurlencode($postId).'/thread');
 
         if (isset($response['posts']) && is_array($response['posts'])) {
             return array_map(
@@ -176,13 +178,13 @@ class KChatMessages
             );
         }
 
-        return new KChatPost($response);
+        return [];
     }
 
     public function update(string $postId, string $message): KChatPost
     {
         try {
-            return new KChatPost($this->client->put("posts/{$postId}/patch", ['message' => $message]));
+            return new KChatPost($this->client->put('posts/'.rawurlencode($postId).'/patch', ['message' => $message]));
         } catch (KChatNotFoundException $exception) {
             throw new KChatNotFoundException(
                 "KChat post \"{$postId}\" could not be updated. The post may not exist or the bot may not have permission.",
@@ -194,10 +196,13 @@ class KChatMessages
         }
     }
 
-    public function delete(string $postId): KChatPost
+    /**
+     * @return array<string, mixed>
+     */
+    public function delete(string $postId): array
     {
         try {
-            return new KChatPost($this->client->delete("posts/{$postId}"));
+            return $this->client->delete('posts/'.rawurlencode($postId));
         } catch (KChatNotFoundException $exception) {
             throw new KChatNotFoundException(
                 "KChat post \"{$postId}\" could not be deleted. The post may not exist or the bot may not have permission.",
@@ -211,12 +216,12 @@ class KChatMessages
 
     public function fileInfo(string $fileId): KChatFileInfo
     {
-        return new KChatFileInfo($this->client->get("files/{$fileId}/info"));
+        return new KChatFileInfo($this->client->get('files/'.rawurlencode($fileId).'/info'));
     }
 
     public function downloadFile(string $fileId): string
     {
-        return $this->client->download("files/{$fileId}")->body();
+        return $this->client->download('files/'.rawurlencode($fileId))->body();
     }
 
     private function resolveChannelId(): string

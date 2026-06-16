@@ -14,7 +14,7 @@ it('finds users by id username email and list', function () {
     Http::fake([
         'https://kchat.example.com/api/v4/users/user-id' => Http::response(['id' => 'user-id']),
         'https://kchat.example.com/api/v4/users/username/simon' => Http::response(['id' => 'user-id', 'username' => 'simon']),
-        'https://kchat.example.com/api/v4/users/email/simon@example.com' => Http::response(['id' => 'user-id', 'email' => 'simon@example.com']),
+        'https://kchat.example.com/api/v4/users/email/simon%40example.com' => Http::response(['id' => 'user-id', 'email' => 'simon@example.com']),
         'https://kchat.example.com/api/v4/users*' => Http::response([['id' => 'user-id']]),
     ]);
 

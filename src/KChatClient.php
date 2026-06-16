@@ -54,10 +54,11 @@ class KChatClient
     }
 
     /**
+     * @param  resource|string  $contents
      * @param  array<string, string>  $data
      * @return array<string, mixed>
      */
-    public function attach(string $endpoint, string $name, string $contents, ?string $filename, array $data = []): array
+    public function attach(string $endpoint, string $name, mixed $contents, ?string $filename, array $data = []): array
     {
         return $this->decode(
             $endpoint,

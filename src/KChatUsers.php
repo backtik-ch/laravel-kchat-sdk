@@ -10,17 +10,17 @@ class KChatUsers
 
     public function find(string $id): KChatUser
     {
-        return new KChatUser($this->client->get("users/{$id}"));
+        return new KChatUser($this->client->get('users/'.rawurlencode($id)));
     }
 
     public function findByUsername(string $username): KChatUser
     {
-        return new KChatUser($this->client->get("users/username/{$username}"));
+        return new KChatUser($this->client->get('users/username/'.rawurlencode($username)));
     }
 
     public function findByEmail(string $email): KChatUser
     {
-        return new KChatUser($this->client->get("users/email/{$email}"));
+        return new KChatUser($this->client->get('users/email/'.rawurlencode($email)));
     }
 
     /**
