@@ -178,6 +178,19 @@ Keep the bot token in config or `.env`; do not hard-code it in application code.
 
 `attachFile()` accepts local files only. It validates that the path exists and is readable before upload.
 
+## Laravel Boost
+
+This package ships with Laravel Boost resources. If your application uses [Laravel Boost](https://laravel.com/docs/13.x/boost), run the installer to publish the package guidelines and skills automatically:
+
+```bash
+php artisan boost:install
+```
+
+The published resources include:
+
+- **AI guidelines** with an overview of the SDK, required configuration, core conventions, and usage examples.
+- **Skill** `kchat-sdk-development` with detailed patterns for sending messages, managing attachments and threads, handling exceptions, and testing.
+
 ## Testing
 
 ```bash
