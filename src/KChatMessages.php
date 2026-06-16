@@ -196,13 +196,10 @@ class KChatMessages
         }
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    public function delete(string $postId): array
+    public function delete(string $postId): KChatPost
     {
         try {
-            return $this->client->delete('posts/'.rawurlencode($postId));
+            return new KChatPost($this->client->delete('posts/'.rawurlencode($postId)));
         } catch (KChatNotFoundException $exception) {
             throw new KChatNotFoundException(
                 "KChat post \"{$postId}\" could not be deleted. The post may not exist or the bot may not have permission.",

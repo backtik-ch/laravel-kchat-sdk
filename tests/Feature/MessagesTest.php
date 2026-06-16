@@ -62,7 +62,7 @@ it('finds threads updates and deletes posts', function () {
     expect(KChat::messages()->find('post-id')->id())->toBe('post-id')
         ->and(KChat::messages()->thread('post-id')[0]->id())->toBe('post-id')
         ->and(KChat::messages()->update('post-id', 'Updated')->message())->toBe('Updated')
-        ->and(KChat::messages()->delete('post-id'))->toHaveKey('id', 'post-id');
+        ->and(KChat::messages()->delete('post-id')->id())->toBe('post-id');
 
     Http::assertSent(fn ($request): bool => $request->method() === 'PUT'
         && str_ends_with($request->url(), '/posts/post-id/patch')
