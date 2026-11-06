@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   update:
-    runs-on: ubuntu-24.04
+    runs-on: ${{ fromJSON(vars.RUNNER) }}
     timeout-minutes: 5
 
     steps:

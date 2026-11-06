@@ -22,7 +22,7 @@ concurrency:
 
 jobs:
   test:
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ startsWith(matrix.os, 'ubuntu-') && fromJSON(vars.RUNNER) || matrix.os }}
     timeout-minutes: 5
     strategy:
       fail-fast: true
