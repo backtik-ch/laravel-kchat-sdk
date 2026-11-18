@@ -22,12 +22,11 @@ concurrency:
 
 jobs:
   test:
-    runs-on: ${{ startsWith(matrix.os, 'ubuntu-') && fromJSON(vars.RUNNER) || matrix.os }}
+    runs-on: ${{ fromJSON(vars.RUNNER) }}
     timeout-minutes: 5
     strategy:
       fail-fast: true
       matrix:
-        os: [ubuntu-24.04, windows-latest]
         php: [8.5, 8.4, 8.3]
         laravel: [13.*, 12.*]
         stability: [prefer-lowest, prefer-stable]
@@ -37,7 +36,7 @@ jobs:
           - laravel: 12.*
             testbench: 10.*
 
-    name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.stability }} - ${{ matrix.os }}
+    name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.stability }}
 
     steps:
       - name: Checkout code
