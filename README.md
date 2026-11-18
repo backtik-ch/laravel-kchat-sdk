@@ -1,6 +1,6 @@
 # Laravel kChat SDK
 
-Laravel SDK for sending kChat messages with a bot token and reading kChat users.
+Laravel SDK for sending kChat messages with a bot token and reading kChat users and channels.
 
 ## Installation
 
@@ -128,6 +128,21 @@ $user = KChat::users()->findByUsername('simon');
 $user = KChat::users()->findByEmail('simon@example.com');
 $users = KChat::users()->list();
 ```
+
+## Channels
+
+List channels the authenticated bot belongs to, or pass a user id when the token has permission to access that user's channels:
+
+```php
+$channels = KChat::channels()->listForUser();
+$channels = KChat::channels()->listForUser('user_id');
+
+foreach ($channels as $channel) {
+    echo $channel->displayName();
+}
+```
+
+Each `KChatChannel` exposes `id()`, `name()`, `displayName()`, `type()`, and `teamId()`. The SDK returns channels visible to the requested user; this does not list every channel on the server.
 
 ## Exceptions
 

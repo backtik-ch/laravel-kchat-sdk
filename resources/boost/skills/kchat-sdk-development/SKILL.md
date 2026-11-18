@@ -1,13 +1,13 @@
 ---
 name: kchat-sdk-development
-description: Build kChat messaging features using the backtik-ch/laravel-kchat-sdk SDK, including messages, users, attachments, threads and error handling.
+description: Build kChat features using the backtik-ch/laravel-kchat-sdk SDK, including messages, users, channels, attachments, threads and error handling.
 ---
 
 # kChat SDK Development
 
 ## When to use this skill
 
-Use this skill whenever you are writing or modifying code that sends messages, reads users, uploads files, or handles kChat API errors through the `backtik-ch/laravel-kchat-sdk` package.
+Use this skill whenever you are writing or modifying code that sends messages, reads users or channels, uploads files, or handles kChat API errors through the `backtik-ch/laravel-kchat-sdk` package.
 
 ## Required setup
 
@@ -106,6 +106,19 @@ $user = KChat::users()->findByUsername('simon');
 $user = KChat::users()->findByEmail('simon@example.com');
 $users = KChat::users()->list(page: 0, perPage: 60);
 ```
+
+### List channels
+
+```php
+$channels = KChat::channels()->listForUser();
+
+foreach ($channels as $channel) {
+    $id = $channel->id();
+    $label = $channel->displayName();
+}
+```
+
+This returns channels the authenticated user belongs to. Pass a user id to `listForUser($userId)` only if the configured token can access that user's channels. Results are `KChatChannel` DTOs; they do not include channels outside that user's visible memberships.
 
 ### Override bot display for one message
 
