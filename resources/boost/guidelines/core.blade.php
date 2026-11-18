@@ -1,6 +1,6 @@
 ## Laravel kChat SDK
 
-`backtik-ch/laravel-kchat-sdk` is a Laravel SDK for sending messages and reading users from a kChat server using a bot token.
+`backtik-ch/laravel-kchat-sdk` is a Laravel SDK for sending messages and reading users and channels from a kChat server using a bot token.
 
 ### Installation
 
@@ -34,6 +34,7 @@ KCHAT_CACHE_TTL=3600
 - Always use the `KChat` facade (`Backtik\KChat\Facades\KChat`) instead of resolving `KChatClient` directly.
 - `KChat::messages()` returns a `KChatMessages` fluent builder.
 - `KChat::users()` returns a `KChatUsers` helper.
+- `KChat::channels()` returns a `KChatChannels` helper. `list()` lists channels for the user authenticated by the configured token. `listForUser($userId)` lists channels for a specific user when the token has permission; neither method lists every channel on the server.
 - Public methods return typed DTOs (`KChatPost`, `KChatUser`, `KChatFileInfo`) or throw typed exceptions. They never return `false`.
 - Catch `KChatNotFoundException` for missing users or posts, and `KChatRequestException` for generic request failures.
 
@@ -131,6 +132,16 @@ $user = KChat::users()->findByEmail('simon@example.com');
 $users = KChat::users()->list();
 </code-snippet>
 @endverbatim
+
+### Channels
+
+@verbatim
+<code-snippet name="List channels" lang="php">
+$channels = KChat::channels()->list();
+</code-snippet>
+@endverbatim
+
+Each result is a `KChatChannel` with `id()`, `name()`, `displayName()`, `type()`, and `teamId()` accessors. Use `listForUser($userId)` for a specific user only when the configured token has permission to access that user's channels.
 
 ### Security
 

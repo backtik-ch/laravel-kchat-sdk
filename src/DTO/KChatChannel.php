@@ -22,4 +22,14 @@ class KChatChannel
     {
         return $this->string('type');
     }
+
+    public function displayName(): ?string
+    {
+        return $this->string('display_name');
+    }
+
+    public function teamId(): ?string
+    {
+        return $this->string('team_id');
+    }
 }

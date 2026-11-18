@@ -15,4 +15,9 @@ class KChat
     {
         return new KChatUsers($this->client);
     }
+
+    public function channels(): KChatChannels
+    {
+        return new KChatChannels($this->client);
+    }
 }
