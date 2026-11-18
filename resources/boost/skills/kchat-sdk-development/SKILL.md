@@ -110,7 +110,7 @@ $users = KChat::users()->list(page: 0, perPage: 60);
 ### List channels
 
 ```php
-$channels = KChat::channels()->listForUser();
+$channels = KChat::channels()->list();
 
 foreach ($channels as $channel) {
     $id = $channel->id();
@@ -118,7 +118,7 @@ foreach ($channels as $channel) {
 }
 ```
 
-This returns channels the authenticated user belongs to. Pass a user id to `listForUser($userId)` only if the configured token can access that user's channels. Results are `KChatChannel` DTOs; they do not include channels outside that user's visible memberships.
+`list()` returns channels the authenticated user belongs to. Use `listForUser($userId)` for a specific user only if the configured token can access that user's channels. Results are `KChatChannel` DTOs; they do not include channels outside that user's visible memberships.
 
 ### Override bot display for one message
 

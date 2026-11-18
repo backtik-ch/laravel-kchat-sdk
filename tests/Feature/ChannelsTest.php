@@ -29,7 +29,7 @@ it('lists channels for the authenticated user', function () {
         ]),
     ]);
 
-    $channels = KChat::channels()->listForUser();
+    $channels = KChat::channels()->list();
 
     expect($channels)->toHaveCount(2)
         ->and($channels[0])->toBeInstanceOf(KChatChannel::class)

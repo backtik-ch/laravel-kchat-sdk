@@ -131,10 +131,10 @@ $users = KChat::users()->list();
 
 ## Channels
 
-List channels the authenticated bot belongs to, or pass a user id when the token has permission to access that user's channels:
+List channels for the authenticated user, or pass a user id when the token has permission to access that user's channels:
 
 ```php
-$channels = KChat::channels()->listForUser();
+$channels = KChat::channels()->list();
 $channels = KChat::channels()->listForUser('user_id');
 
 foreach ($channels as $channel) {
