@@ -144,6 +144,8 @@ foreach ($channels as $channel) {
 
 Each `KChatChannel` exposes `id()`, `name()`, `displayName()`, `type()`, and `teamId()`. The SDK returns channels visible to the requested user; this does not list every channel on the server.
 
+Use `KChat::channels()->listPublicForTeam($teamId)` to retrieve all pages of public channels in a team. The configured token must have permission to list the team's public channels.
+
 ## Exceptions
 
 Public methods return typed DTOs or throw an exception. They do not return `false`.

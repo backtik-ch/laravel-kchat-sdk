@@ -1,6 +1,7 @@
 <?php
 
 use Backtik\KChat\DTO\KChatChannel;
+use Backtik\KChat\Exceptions\KChatAuthorizationException;
 use Backtik\KChat\Facades\KChat;
 use Illuminate\Support\Facades\Http;
 
@@ -54,3 +55,28 @@ it('can list channels for a specific user', function () {
 
     Http::assertSent(fn ($request): bool => $request->url() === 'https://kchat.example.com/api/v4/users/user-id/channels');
 });
+
+it('paginates public channels with the configured token', function () {
+    Http::fakeSequence('https://kchat.example.com/api/v4/teams/team-id/channels*')
+        ->push(array_fill(0, 100, ['id' => 'first', 'type' => 'O']))
+        ->push([['id' => 'last', 'type' => 'O']]);
+
+    $channels = KChat::channels()->listPublicForTeam('team-id');
+
+    expect($channels)->toHaveCount(101)->and($channels[100]->id())->toBe('last');
+    Http::assertSentCount(2);
+    Http::assertSent(fn ($request): bool => $request->hasHeader('Authorization', 'Bearer secret-token')
+        && $request['page'] === 1 && $request['per_page'] === 100);
+});
+
+it('returns an empty public channel list', function () {
+    Http::fake(['*' => Http::response([])]);
+
+    expect(KChat::channels()->listPublicForTeam('team-id'))->toBe([]);
+});
+
+it('reports denied access to public channels', function () {
+    Http::fake(['*' => Http::response(['message' => 'Forbidden'], 403)]);
+
+    KChat::channels()->listPublicForTeam('team-id');
+})->throws(KChatAuthorizationException::class);
