@@ -19,6 +19,31 @@ class KChatChannels
     }
 
     /**
+     * List all public channels in a team using the configured token.
+     *
+     * @return array<int, KChatChannel>
+     */
+    public function listPublicForTeam(string $teamId): array
+    {
+        $channels = [];
+        $page = 0;
+        $perPage = 100;
+
+        do {
+            $response = $this->client->get('teams/'.rawurlencode($teamId).'/channels', [
+                'page' => $page++,
+                'per_page' => $perPage,
+            ]);
+
+            foreach ($response as $channel) {
+                $channels[] = new KChatChannel($channel);
+            }
+        } while (count($response) === $perPage);
+
+        return $channels;
+    }
+
+    /**
      * List channels the given user belongs to.
      *
      * @return array<int, KChatChannel>
